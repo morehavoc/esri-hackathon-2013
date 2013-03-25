@@ -134,7 +134,7 @@
         </Grid>
 
         <Grid Grid.Row="1" x:Name="InfoGrid">
-            <TextBlock x:Name="TimeText" Text=""  HorizontalAlignment="Center" TextAlignment="Center"/>
+            <TextBlock x:Name="TimeText" Text="" TextWrapping="Wrap"  HorizontalAlignment="Center" TextAlignment="Center"/>
             
         </Grid>
 

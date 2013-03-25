@@ -123,7 +123,7 @@ namespace Hackathon2013
         {
             GraphicsLayer stopsGraphicsLayer = Map.Layers["MyStopsGraphicsLayer"] as GraphicsLayer;
             RouteTask routeTask = LayoutRoot.Resources["MyRouteTask"] as RouteTask;
-            routeTask.SolveAsync(new RouteParameters() { Stops = stopsGraphicsLayer, UseTimeWindows = false });
+            routeTask.SolveAsync(new RouteParameters() { Stops = stopsGraphicsLayer, UseTimeWindows = false, ReturnDirections = true });
         }
 
         private void MyRouteTask_Failed(object sender, TaskFailedEventArgs e)
@@ -138,6 +138,8 @@ namespace Hackathon2013
             stopsGraphicsLayer.Graphics.RemoveAt(stopsGraphicsLayer.Graphics.Count - 1);
         }
 
+        FeatureSet directionsFeatureSet = new FeatureSet();
+        List<Graphic> directionsList = new List<Graphic>();
         private void MyRouteTask_SolveCompleted(object sender, RouteEventArgs e)
         {
             GraphicsLayer routeGraphicsLayer = Map.Layers["MyRouteGraphicsLayer"] as GraphicsLayer;
@@ -145,6 +147,11 @@ namespace Hackathon2013
 
             RouteResult routeResult = e.RouteResults[0];
             routeResult.Route.Symbol = LayoutRoot.Resources["RouteSymbol"] as ESRI.ArcGIS.Client.Symbols.Symbol;
+            directionsFeatureSet = routeResult.Directions;
+            foreach (Graphic direction in routeResult.Directions.Features)
+            {
+                directionsList.Add(direction);
+            }
 
             Graphic lastRoute = routeResult.Route;
 
@@ -157,12 +164,13 @@ namespace Hackathon2013
 
         public void NavigateSampleRoute()
         {
-            QueryTask queryTask = new QueryTask("http://services.arcgis.com/JbibFpsuaEQr3FFG/arcgis/rest/services/drive_path_points4/FeatureServer/0");
+            QueryTask queryTask = new QueryTask("http://services.arcgis.com/JbibFpsuaEQr3FFG/arcgis/rest/services/drive_path_points5/FeatureServer/0");
             queryTask.ExecuteCompleted += new EventHandler<QueryEventArgs>(queryTask_ExecuteCompleted);
             queryTask.Failed += new EventHandler<TaskFailedEventArgs>(queryTask_Failed);
 
             Query query = new Query();
             query.ReturnGeometry = true;
+            query.OutFields.Add("Directions");
             query.Where = "1=1";
 
             queryTask.ExecuteAsync(query);
@@ -196,6 +204,9 @@ namespace Hackathon2013
         {
             SetCurrectLocation(routePoints[i]);
 
+            if (routePoints[i].Attributes["Directions"] != null && routePoints[i].Attributes["Directions"] != TimeText.Text)
+                TimeText.Text = routePoints[i].Attributes["Directions"].ToString();
+
             QueryTask intersectQueryTask = new QueryTask("http://services.arcgis.com/JbibFpsuaEQr3FFG/arcgis/rest/services/animal_polygons3/FeatureServer/0");
             intersectQueryTask.ExecuteCompleted += new EventHandler<QueryEventArgs>(intersectQueryTask_ExecuteCompleted);
             intersectQueryTask.Failed += new EventHandler<TaskFailedEventArgs>(queryTask_Failed);
@@ -203,6 +214,13 @@ namespace Hackathon2013
             query.SpatialRelationship = SpatialRelationship.esriSpatialRelIntersects;
             query.Geometry = currentLocation.Geometry;
             intersectQueryTask.ExecuteAsync(query);
+
+
+        }
+
+        void directionsQueryTask_ExecuteCompleted(object sender, QueryEventArgs e)
+        {
+            throw new NotImplementedException();
         }
 
         Graphic currentLocation = null;
@@ -242,9 +260,29 @@ namespace Hackathon2013
 
         public void FeatureLayer_Initialized(object sender, EventArgs e)
         {
+            //hard coded values because feature class did not return them in the correct order
+            List<string> animalSizes = new List<string>();
+            animalSizes.Add("Extra Large");
+            animalSizes.Add("Large");
+            animalSizes.Add("Medium");
+            animalSizes.Add("Small");
+            animalSizes.Add("Extra Small"); 
             FeatureLayer fl = sender as FeatureLayer;
 
             buttonsStackPanel.Children.Clear();
+            foreach (string name in animalSizes)
+            {
+                Button button = new Button();
+                button.Content = GetIconImage(name);
+                button.Background = new SolidColorBrush(System.Windows.Media.Color.FromArgb(255, 255, 255, 255));
+                button.Opacity = .6;
+                button.Width = 110;
+                button.Height = 110;
+                button.Name = name;
+                button.Click += new RoutedEventHandler(button_Click);
+                buttonsStackPanel.Children.Add(button);
+            }
+
             IDictionary<object, FeatureType> featureTypes = fl.LayerInfo.FeatureTypes;
             if (fl.Renderer != null)
             {
@@ -255,21 +293,12 @@ namespace Hackathon2013
                     {
                         if (featureTypePairs.Value != null && featureTypePairs.Value.Templates != null && featureTypePairs.Value.Templates.Count > 0)
                         {
+
                             foreach (KeyValuePair<string, FeatureTemplate> featureTemplate in featureTypePairs.Value.Templates)
                             {
                                 string name = featureTypePairs.Value.Name;
                                 if (featureTypePairs.Value.Templates.Count > 1)
                                     name = string.Format("{0}-{1}", featureTypePairs.Value.Name, featureTemplate.Value.Name);
-                                Symbol symbol = featureTemplate.Value.GetSymbol(fl.Renderer) ?? defaultSymbol;
-                                Button button = new Button();
-                                button.Content = GetIconImage(name);
-                                button.Background = new SolidColorBrush(System.Windows.Media.Color.FromArgb(255, 255, 255, 255));
-                                button.Opacity = .6;
-                                button.Width = 110;
-                                button.Height = 110;
-                                button.Name = name;
-                                button.Click += new RoutedEventHandler(button_Click);
-                                buttonsStackPanel.Children.Add(button);                                
                             }
                         }
                     }

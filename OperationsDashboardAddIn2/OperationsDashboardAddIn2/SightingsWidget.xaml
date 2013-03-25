@@ -1,0 +1,42 @@
+﻿<UserControl x:Class="OperationsDashboardAddIn2.SightingsWidget"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:opsDash="clr-namespace:ESRI.ArcGIS.OperationsDashboard;assembly=ESRI.ArcGIS.OperationsDashboard"
+             mc:Ignorable="d"
+             d:DesignHeight="300"
+             d:DesignWidth="300">
+    <Grid Margin="10">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="auto" />
+            <RowDefinition Height="auto" />
+            <RowDefinition Height="auto" />
+            <RowDefinition Height="auto"/>
+            <RowDefinition Height="auto"/>
+        </Grid.RowDefinitions>
+
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="auto" />
+            
+        </Grid.ColumnDefinitions>
+
+        <TextBlock Visibility="Hidden" Grid.Row="0" Text="DataSourceId:" Style="{StaticResource DialogPromptTextBlockStyle}" Foreground="{DynamicResource ThemedForegroundBrush}" FontSize="{DynamicResource ThemedTextSize}" VerticalAlignment="Center"/>
+        <TextBox Visibility="Hidden" x:Name="DataSourceBox" Grid.Row="0" Grid.Column="1" Text="" Style="{StaticResource ThemedTextBoxStyle}" FontSize="{DynamicResource ThemedTextSize}" Margin="10,5,0,0" />
+
+        <TextBlock Visibility="Hidden" Grid.Row="1" Text="Field:" Style="{StaticResource DialogPromptTextBlockStyle}" Foreground="{DynamicResource ThemedForegroundBrush}" FontSize="{DynamicResource ThemedTextSize}" VerticalAlignment="Center"/>
+        <TextBox Visibility="Hidden" x:Name="FieldBox" Grid.Row="1" Grid.Column="1" Text="" Style="{StaticResource ThemedTextBoxStyle}" FontSize="{DynamicResource ThemedTextSize}" Margin="10,5,0,0" />
+        <StackPanel Width="275" HorizontalAlignment="Center"><Button Grid.Row="2" Grid.Column="1" Margin="0,10,0,0" Name="btnAddSighting" Content="Add Sighting" Width="95" Click="btnAddSighting_Click"/>
+</StackPanel>
+            
+    <Button Grid.Row="3" Grid.Column="1" HorizontalAlignment="Center" Margin="0,5,0,0" Name="btnSaveSighting" Content="Save Sighting" Width="95" Click="btnSaveSighting_Click" Height="23" VerticalAlignment="Top"/>
+    <ComboBox Width="85" x:Name="sizeComboBox" Grid.Row="4" Grid.Column="1" Margin="0,40,0,0" SelectionChanged="sizeComboBox_SelectionChanged" >
+            <ComboBoxItem Content="Select Size" IsSelected="True"
+/>          <ComboBoxItem Content="Extra Large"/>
+            <ComboBoxItem Content="Large"/>
+            <ComboBoxItem Content="Medium"/>
+            <ComboBoxItem Content="Small"/>
+            <ComboBoxItem Content="Very Small"/>
+        </ComboBox>
+    </Grid>
+</UserControl>

@@ -15,9 +15,11 @@
                         dojo.require("esri.tasks.servicearea"); 
                         dojo.require("esri.map");
                         
+                        
                         var queryTask, query, animalPolys, animals, serviceAreaTask, serviceParams;
                         
                         function init() {
+                            esri.config.defaults.io.proxyUrl = "/proxy.php";
                             //build query
                             queryTask = new esri.tasks.QueryTask("http://services.arcgis.com/JbibFpsuaEQr3FFG/arcgis/rest/services/animal_sightings/FeatureServer/0");
                             
@@ -37,6 +39,7 @@
                             serviceParams.defaultBreaks= [1];
                             serviceParams.outSpatialReference = animalPolys.spatialReference;
                             serviceParams.returnFacilities = false;
+                            generate_alert_polys();
                         }
                         
                         function reset_animal_status() {
